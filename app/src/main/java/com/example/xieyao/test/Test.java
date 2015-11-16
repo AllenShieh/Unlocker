@@ -37,6 +37,7 @@ public class Test extends Activity {
     TextView View3 = null;
 
     boolean start = false;
+    boolean record = false;
     private String fileName = "sensor_data.txt";
 
     FileOutputStream outputStream = null;
@@ -100,6 +101,24 @@ public class Test extends Activity {
         }
     };
 
+    private void info(String infos){
+        String content = infos + "\n";
+        try {
+            outputStream.write(content.getBytes());
+            //获取SD卡的目录
+            File sdCardDir = Environment.getExternalStorageDirectory();
+            File targetFile = new File(sdCardDir.getPath() + '/' + fileName);
+            RandomAccessFile raf = new RandomAccessFile(targetFile , "rw");
+            raf.seek(targetFile.length());
+            raf.write(content.getBytes());
+            raf.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void save(float Ax,float Ay,float Az,float LAx,float LAy,float LAz,float Gx,float Gy,float Gz,float P) {
 
         DecimalFormat df = new DecimalFormat("0.0000");
@@ -117,7 +136,6 @@ public class Test extends Activity {
             raf.seek(targetFile.length());
             raf.write(content.getBytes());
             raf.close();
-            //outputStream.write(sdCardDir.getPath().getBytes());
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -145,35 +163,46 @@ public class Test extends Activity {
 
         //复写onSensorChanged方法
         public void onSensorChanged(SensorEvent sensorEvent){
-            Log.i(TAG,"onSensorChanged");
-            if(sensorEvent.sensor.getType() == Sensor.TYPE_ACCELEROMETER && start){
+            //Log.i(TAG,"onSensorChanged");
+            if(sensorEvent.sensor.getType() == Sensor.TYPE_ACCELEROMETER && !record){
+                Accelerometer_z = sensorEvent.values[2];
+                if(Math.abs(Accelerometer_z)>5){
+                    record = true;
+                    info("start recording");
+                }
+            }
+            if(sensorEvent.sensor.getType() == Sensor.TYPE_ACCELEROMETER && start && record){
                 Accelerometer_x = sensorEvent.values[0];
                 Accelerometer_y = sensorEvent.values[1];
                 Accelerometer_z = sensorEvent.values[2];
+                if(Math.abs(Accelerometer_z)<5){
+                    record = false;
+                    info("end recording");
+                }
                 View1.setText("X:"+Accelerometer_x);
                 View2.setText("Y:"+Accelerometer_y);
                 View3.setText("Z:"+Accelerometer_z);
             }
-            if(sensorEvent.sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION && start){
+            if(sensorEvent.sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION && start && record){
                 Linear_Acceleration_x = sensorEvent.values[0];
                 Linear_Acceleration_y = sensorEvent.values[1];
                 Linear_Acceleration_z = sensorEvent.values[2];
             }
-            if(sensorEvent.sensor.getType() == Sensor.TYPE_GYROSCOPE && start){
+            if(sensorEvent.sensor.getType() == Sensor.TYPE_GYROSCOPE && start && record){
                 Gyroscope_x = sensorEvent.values[0];
                 Gyroscope_y = sensorEvent.values[1];
                 Gyroscope_z = sensorEvent.values[2];
             }
-            if(sensorEvent.sensor.getType() == Sensor.TYPE_PROXIMITY && start){
+            if(sensorEvent.sensor.getType() == Sensor.TYPE_PROXIMITY && start && record){
                 Proximity = sensorEvent.values[0];
             }
-            if(start)
+            if(start && record)
                 save(Accelerometer_x,Accelerometer_y,Accelerometer_z,Linear_Acceleration_x,Linear_Acceleration_y,Linear_Acceleration_z,
                     Gyroscope_x,Gyroscope_y,Gyroscope_z,Proximity);
         }
         //复写onAccuracyChanged方法
         public void onAccuracyChanged(Sensor sensor , int accuracy){
-            Log.i(TAG, "onAccuracyChanged");
+            //Log.i(TAG, "onAccuracyChanged");
         }
     };
 
