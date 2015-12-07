@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <iomanip>
 
 using namespace std;
 
@@ -21,26 +22,54 @@ int num_of_min = 0;
 float data[200];
 float store[200];
 char graph[graph_row][graph_col];
-char fin_name[file_num][20] = { "sensor_data_Ax1.txt", "sensor_data_Ax2.txt", "sensor_data_Ax3.txt", "sensor_data_Ax4.txt",
-					"sensor_data_Ax5.txt", "sensor_data_Ax6.txt" };
+int codes[file_num][10] = { 0 };
+char fin_namex[file_num][20] = { "sensor_data_Ax1.txt", "sensor_data_Ax2.txt", "sensor_data_Ax3.txt", "sensor_data_Ax4.txt",
+								"sensor_data_Ax5.txt", "sensor_data_Ax6.txt" };
+char fin_namey[file_num][20] = { "sensor_data_Ay1.txt", "sensor_data_Ay2.txt", "sensor_data_Ay3.txt", "sensor_data_Ay4.txt",
+								"sensor_data_Ay5.txt", "sensor_data_Ay6.txt" };
+char fin_namez[file_num][20] = { "sensor_data_Az1.txt", "sensor_data_Az2.txt", "sensor_data_Az3.txt", "sensor_data_Az4.txt",
+								"sensor_data_Az5.txt", "sensor_data_Az6.txt" };
 char fout_name[file_num][20] = { "graph1.txt", "graph2.txt", "graph3.txt", "graph4.txt",
-					"graph5.txt", "graph6.txt" };
+								"graph5.txt", "graph6.txt" };
 char store_file[file_num][20] = { "weighted_data1.txt", "weighted_data2.txt", "weighted_data3.txt", "weighted_data4.txt",
-					"weighted_data5.txt", "weighted_data6.txt" };
-char processed_file[file_num][20] = { "Ax1.txt", "Ax2.txt", "Ax3.txt", "Ax4.txt", "Ax5.txt", "Ax6.txt" };
+								"weighted_data5.txt", "weighted_data6.txt" };
+char code_file[file_num][20] = { "code1.txt", "code2.txt", "code3.txt", "code4.txt", "code5.txt", "code6.txt" };
 
-void fetch_data(char* x){
+void save_codex(int i){
+	codes[i][0] = max_time[0] / (float)num_of_data * 100;
+	codes[i][1] = max_time[1] / (float)num_of_data * 100;
+	codes[i][2] = min_time[0] / (float)num_of_data * 100;
+	codes[i][3] = min_time[1] / (float)num_of_data * 100;
+}
+
+void save_codey(int i){
+	codes[i][4] = max_time[0] / (float)num_of_data * 100;
+	codes[i][5] = min_time[0] / (float)num_of_data * 100;
+	codes[i][6] = min_time[1] / (float)num_of_data * 100;
+}
+
+void save_codez(int i){
+	codes[i][7] = max_time[0] / (float)num_of_data * 100;
+	codes[i][8] = max_time[1] / (float)num_of_data * 100;
+	codes[i][9] = min_time[0] / (float)num_of_data * 100;
+}
+
+void fetch_data(char* x, float high, float low){
 	ifstream fin(x);
 	max_data = -100.0f;
 	min_data = 100.0f;
 	for (int i = 0; i<num_of_data; i++) data[i] = 0;
+	for (int i = 0; i < 5; i++){
+		max_time[i] = 0;
+		min_time[i] = 0;
+	}
 	num_of_data = 0;
 	num_of_max = 0;
 	num_of_min = 0;
 	float temp;
 	while (fin >> temp){
 		//record the time point at which the value cross the value of 5
-		if (last > 5 && temp < 5){
+		if (last > high && temp < high){
 			max_time[num_of_max] = num_of_data;
 			num_of_max++;
 		}
@@ -48,7 +77,7 @@ void fetch_data(char* x){
 			max_data = temp;
 		}
 		//record the time point at which the value cross the value of -5
-		if (last < -5 && temp > -5){
+		if (last < low && temp > low){
 			min_time[num_of_min] = num_of_data;
 			num_of_min++;
 		}
@@ -68,7 +97,7 @@ void fetch_data(char* x){
 		cout << min_time[i] / (float)num_of_data << ' ';
 	}
 	cout << endl;
-	cout << "num: " << num_of_data << endl << endl;
+	cout << "num: " << num_of_data << endl;
 }
 
 void show_graph(char* x){
@@ -110,17 +139,51 @@ void data_processing(){
 }
 
 int main(){
-	int i = 0;
+	int i;
+	i = 0;
 	while (i != file_num){
-		//fetch_data(processed_file[i]);
-		fetch_data(fin_name[i]);
-		//cout << max_data << endl << min_data << endl;
+		fetch_data(fin_namex[i], 5, -5);
+		save_codex(i);
+		cout << "max " << max_data << " min " << min_data << endl << endl;
 		//data_processing();
 
-		data_to_file(store_file[i]);
-		data_to_graph();
-		show_graph(fout_name[i]);
+		//data_to_file(store_file[i]);
+		//data_to_graph();
+		//show_graph(fout_name[i]);
 		i++;
+	}
+	cout << "----------------------------------------------";
+	i = 0;
+	while (i != file_num){
+		fetch_data(fin_namey[i], 2.5, -2.4);
+		save_codey(i);
+		cout << "max " << max_data << " min " << min_data << endl << endl;
+		//data_processing();
+
+		//data_to_file(store_file[i]);
+		//data_to_graph();
+		//show_graph(fout_name[i]);
+		i++;
+	}
+	cout << "----------------------------------------------";
+	i = 0;
+	while (i != file_num){
+		fetch_data(fin_namez[i], 18, 2);
+		save_codez(i);
+		cout << "max " << max_data << " min " << min_data << endl << endl;
+		//data_processing();
+
+		//data_to_file(store_file[i]);
+		//data_to_graph();
+		//show_graph(fout_name[i]);
+		i++;
+	}
+	for (int i = 0; i < file_num; i++){
+		cout << "code " << i+1 << ": ";
+		for (int j = 0; j < 10; j++){
+			cout << setw(2) << codes[i][j] << ' ';
+		}
+		cout << endl;
 	}
 	system("pause");
 	return 0;
