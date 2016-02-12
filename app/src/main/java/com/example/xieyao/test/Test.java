@@ -37,7 +37,7 @@ public class Test extends Activity {
     TextView View3 = null;
 
     boolean start = false;
-    boolean record = false;
+    boolean record = true;
     private String fileName = "sensor_data.txt";
 
     FileOutputStream outputStream = null;
@@ -163,7 +163,7 @@ public class Test extends Activity {
 
         //复写onSensorChanged方法
         public void onSensorChanged(SensorEvent sensorEvent){
-            //Log.i(TAG,"onSensorChanged");
+            /*
             if(sensorEvent.sensor.getType() == Sensor.TYPE_ACCELEROMETER && !record){
                 Accelerometer_z = sensorEvent.values[2];
                 if(Math.abs(Accelerometer_z)>5){
@@ -171,14 +171,17 @@ public class Test extends Activity {
                     info("start recording");
                 }
             }
+            */
             if(sensorEvent.sensor.getType() == Sensor.TYPE_ACCELEROMETER && start && record){
                 Accelerometer_x = sensorEvent.values[0];
                 Accelerometer_y = sensorEvent.values[1];
                 Accelerometer_z = sensorEvent.values[2];
+                /*
                 if(Math.abs(Accelerometer_z)<5){
                     record = false;
                     info("end recording");
                 }
+                */
                 View1.setText("X:"+Accelerometer_x);
                 View2.setText("Y:"+Accelerometer_y);
                 View3.setText("Z:"+Accelerometer_z);
