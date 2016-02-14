@@ -33,4 +33,10 @@
         android:layout_height="wrap_content"
         android:text="Start/End"
         />
+    <Button
+        android:id="@+id/encodeButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Encode"
+        />
 </LinearLayout>

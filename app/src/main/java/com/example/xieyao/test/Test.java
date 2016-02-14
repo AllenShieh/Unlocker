@@ -39,6 +39,10 @@ public class Test extends Activity {
     boolean start = false;
     boolean record = true;
     private String fileName = "sensor_data.txt";
+    float[][][] data = new float[10][10][100];
+    int[][] code = new int[10][20];
+    int group_count = 0;
+    int data_count = 0;
 
     FileOutputStream outputStream = null;
 
@@ -53,6 +57,19 @@ public class Test extends Activity {
 
         Button addButton = (Button) this.findViewById(R.id.addButton);
         addButton.setOnClickListener(listener);
+        Button encodeButton = (Button) this.findViewById(R.id.encodeButton);
+        encodeButton.setOnClickListener(listener);
+
+        for(int i = 0;i<10;i++){
+            for(int j = 0;j<10;j++){
+                for(int k = 0;k<100;k++){
+                    data[i][j][k] = 0;
+                }
+            }
+            for(int j = 0;j<20;j++){
+                code[i][j] = 0;
+            }
+        }
 
         //创建一个SensorManager来获取系统的传感器服务
         sm = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
@@ -71,11 +88,8 @@ public class Test extends Activity {
         int sensorType4 = Sensor.TYPE_PROXIMITY;
         sm.registerListener(myListener,sm.getDefaultSensor(sensorType4),SensorManager.SENSOR_DELAY_UI);
 
-
         try {
-
             outputStream = openFileOutput(fileName,Activity.MODE_PRIVATE);
-
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -94,13 +108,26 @@ public class Test extends Activity {
                         start = true;
                     }
                     else{
-                        start = false;
+                        //start = false;
+                        //group_count++;
                     }
+                    break;
+                case R.id.encodeButton:
+                    encode();
                     break;
             }
         }
     };
 
+    private void encode(){
+
+    }
+
+    private void encode_group(int group, int which, int maxcount, int mincount){
+
+    }
+
+    // write files to SD card
     private void info(String infos){
         String content = infos + "\n";
         try {
@@ -199,9 +226,26 @@ public class Test extends Activity {
             if(sensorEvent.sensor.getType() == Sensor.TYPE_PROXIMITY && start && record){
                 Proximity = sensorEvent.values[0];
             }
-            if(start && record)
-                save(Accelerometer_x,Accelerometer_y,Accelerometer_z,Linear_Acceleration_x,Linear_Acceleration_y,Linear_Acceleration_z,
-                    Gyroscope_x,Gyroscope_y,Gyroscope_z,Proximity);
+            if(start && record) {
+                save(Accelerometer_x, Accelerometer_y, Accelerometer_z, Linear_Acceleration_x, Linear_Acceleration_y, Linear_Acceleration_z,
+                        Gyroscope_x, Gyroscope_y, Gyroscope_z, Proximity);
+                data[group_count][0][data_count] = Accelerometer_x;
+                data[group_count][1][data_count] = Accelerometer_y;
+                data[group_count][2][data_count] = Accelerometer_z;
+                data[group_count][3][data_count] = Linear_Acceleration_x;
+                data[group_count][4][data_count] = Linear_Acceleration_y;
+                data[group_count][5][data_count] = Linear_Acceleration_z;
+                data[group_count][6][data_count] = Gyroscope_x;
+                data[group_count][7][data_count] = Gyroscope_y;
+                data[group_count][8][data_count] = Gyroscope_z;
+                data[group_count][9][data_count] = Proximity;
+                data_count++;
+                if(data_count == 100){
+                    if(group_count==10) group_count = 0;
+                    else group_count++;
+                    start = false;
+                }
+            }
         }
         //复写onAccuracyChanged方法
         public void onAccuracyChanged(Sensor sensor , int accuracy){
