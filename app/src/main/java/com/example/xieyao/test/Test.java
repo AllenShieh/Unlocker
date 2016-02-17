@@ -120,11 +120,67 @@ public class Test extends Activity {
     };
 
     private void encode(){
-
+        for(int i = 0;i<10;i++){
+            int codepos = 0;
+            for(int j = 0;j<10;j++){
+                encode_group(i,j,1,1,codepos);
+            }
+        }
     }
 
-    private void encode_group(int group, int which, int maxcount, int mincount){
-
+    private void encode_group(int group, int which, int maxcount, int mincount, int codepos){
+        int start = 0;
+        int end = 99;
+        while(data[group][which][start]==0) start++;
+        while(data[group][which][end]==0) end--;
+        int[] max_time = new int[maxcount];
+        float[] max_value = new float[maxcount];
+        int[] min_time = new int[mincount];
+        float[] min_value = new float[mincount];
+        for(int i = 0;i<maxcount;i++){
+            max_time[i] = 0;
+            max_value[i] = -20;
+        }
+        for(int i = 0;i<mincount;i++){
+            min_time[i] = 0;
+            min_value[i] = 20;
+        }
+        boolean record_max = false;
+        boolean record_min = false;
+        for(int i = start+1;i<=end;i++){
+            if(data[group][which][i]>data[group][which][i-1]) record_max = true;
+            if(data[group][which][i]<data[group][which][i-1]) record_min = true;
+            if (data[group][which][i] < data[group][which][i - 1] && record_max){
+                record_max = false;
+                int pos = 0;
+                for (int j = 0; j < maxcount; j++){
+                    if (max_value[j] < max_value[pos]) pos = j;
+                }
+                if (data[group][which][i - 1] > max_value[pos]){
+                    max_value[pos] = data[group][which][i - 1];
+                    max_time[pos] = i - 1;
+                }
+            }
+            if (data[group][which][i] > data[group][which][i - 1] && record_min){
+                record_min = false;
+                int pos = 0;
+                for (int j = 0; j < mincount; j++){
+                    if (min_value[j]>min_value[pos]) pos = j;
+                }
+                if (data[group][which][i - 1] < min_value[pos]){
+                    min_value[pos] = data[group][which][i - 1];
+                    min_time[pos] = i - 1;
+                }
+            }
+        }
+        for(int i = 0;i<maxcount;i++){
+            code[group][codepos] = max_time[i];
+            codepos++;
+        }
+        for(int i = 0;i<mincount;i++){
+            code[group][codepos] = min_time[i];
+            codepos++;
+        }
     }
 
     // write files to SD card
